@@ -41,9 +41,24 @@ class Variable:
             )
 
     def __hash__(self):
+        """
+        Generates a hash value for a Variable instance. This is useful for using Variable instances as keys in dictionaries.
+
+        Returns:
+        int: The hash value of the variable.
+        """
         return hash((self.i, self.j, self.direction, self.length))
 
     def __eq__(self, other):
+        """
+        Checks if two Variable instances are equal. Two instances are considered equal if they have the same starting point, direction, and length.
+
+        Args:
+        other (Variable): Another Variable instance to compare against.
+
+        Returns:
+        bool: True if the variables are equal, False otherwise.
+        """
         return (
             (self.i == other.i)
             and (self.j == other.j)
@@ -52,9 +67,21 @@ class Variable:
         )
 
     def __str__(self):
+        """
+        Returns a human-readable string representation of the Variable instance.
+
+        Returns:
+        str: A string representing the variable's starting point, direction, and length.
+        """
         return f"({self.i}, {self.j}) {self.direction} : {self.length}"
 
     def __repr__(self):
+        """
+        Returns a string that would recreate the Variable object if passed to eval().
+
+        Returns:
+        str: A string that represents a valid constructor call for recreating the variable.
+        """
         direction = repr(self.direction)
         return f"Variable({self.i}, {self.j}, {direction}, {self.length})"
 
