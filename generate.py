@@ -1,12 +1,34 @@
+"""
+This script generates a crossword puzzle using constraint satisfaction programming. It includes a 
+main function that reads the crossword structure and word list from files, creates a Crossword 
+and CrosswordCreator object, and then attempts to solve the crossword. If a solution is found, 
+it is printed to the terminal and optionally saved as an image file.
+
+Usage:
+    python generate.py structure words [output]
+
+Where:
+    'structure' is a file defining the structure of the crossword,
+    'words' is a file containing a list of words to use in the crossword,
+    'output' is an optional argument specifying the name of the file to save the crossword image.
+"""
 import sys
 
 from crossword import *
 
 
 class CrosswordCreator:
+    """
+    This class represents a crossword creator for generating crossword puzzles.
+    It uses the constraint satisfaction problem (CSP) approach to fill in a crossword grid.
+    """
+
     def __init__(self, crossword):
         """
-        Create new CSP crossword generate.
+        Initializes a new CSP crossword generator.
+
+        Args:
+        crossword (Crossword): An instance of the Crossword class containing the structure of the crossword.
         """
         self.crossword = crossword
         self.domains = {
@@ -15,7 +37,13 @@ class CrosswordCreator:
 
     def letter_grid(self, assignment):
         """
-        Return 2D array representing a given assignment.
+        Converts the crossword assignment into a 2D array of characters.
+
+        Args:
+        assignment (dict): A dictionary representing the current assignment of words to variables.
+
+        Returns:
+        list of list of str: A 2D array representing the crossword grid filled with assigned words.
         """
         letters = [
             [None for _ in range(self.crossword.width)]
@@ -31,7 +59,10 @@ class CrosswordCreator:
 
     def print(self, assignment):
         """
-        Print crossword assignment to the terminal.
+        Prints the crossword assignment to the terminal in a human-readable format.
+
+        Args:
+        assignment (dict): A dictionary representing the current assignment of words to variables.
         """
         letters = self.letter_grid(assignment)
         for i in range(self.crossword.height):
@@ -44,7 +75,11 @@ class CrosswordCreator:
 
     def save(self, assignment, filename):
         """
-        Save crossword assignment to an image file.
+        Saves the crossword assignment as an image file.
+
+        Args:
+        assignment (dict): A dictionary representing the current assignment of words to variables.
+        filename (str): The path of the file where the crossword image will be saved.
         """
         from PIL import Image, ImageDraw, ImageFont
 
@@ -89,19 +124,35 @@ class CrosswordCreator:
 
     def solve(self):
         """
-        Enforce node and arc consistency, and then solve the CSP.
+        Solves the crossword puzzle using constraint satisfaction methods.
+
+        Returns:
+        dict or None: The assignment dictionary if a solution is found; otherwise, None.
         """
         self.enforce_node_consistency()
         self.ac3()
         return self.backtrack(dict())
 
     def enforce_node_consistency(self):
+        """
+        Enforces node consistency by eliminating words that do not match the length of the variables.
+        """
         for variable in self.domains:
             for word in set(self.domains[variable]):
                 if len(word) != variable.length:
                     self.domains[variable].remove(word)
 
     def revise(self, x, y):
+        """
+        Revises the domain of variable x by considering the constraints imposed by variable y.
+
+        Args:
+        x (Variable): A variable in the crossword.
+        y (Variable): Another variable that imposes constraints on x.
+
+        Returns:
+        bool: True if the domain of x is revised, False otherwise.
+        """
         revised = False
         overlap = self.crossword.overlaps[x, y]
 
@@ -119,6 +170,15 @@ class CrosswordCreator:
         return revised
 
     def ac3(self, arcs=None):
+        """
+        Enforces arc consistency on the puzzle's variables.
+
+        Args:
+        arcs (list of tuple): A list of arcs (pairs of variables) to be considered for consistency. If None, all arcs are considered.
+
+        Returns:
+        bool: True if arc consistency is achieved, False if an inconsistency is found.
+        """
         if arcs is None:
             arcs = [(x, y) for x in self.domains for y in self.crossword.neighbors(x)]
 
@@ -133,9 +193,27 @@ class CrosswordCreator:
         return True
 
     def assignment_complete(self, assignment):
+        """
+        Checks if the crossword assignment is complete.
+
+        Args:
+        assignment (dict): The current assignment.
+
+        Returns:
+        bool: True if the assignment is complete, False otherwise.
+        """
         return all(variable in assignment for variable in self.crossword.variables)
 
     def consistent(self, assignment):
+        """
+        Checks if the given assignment is consistent with the crossword constraints.
+
+        Args:
+        assignment (dict): The current assignment.
+
+        Returns:
+        bool: True if the assignment is consistent, False otherwise.
+        """
         if len(set(assignment.values())) < len(assignment):
             return False
 
@@ -152,6 +230,17 @@ class CrosswordCreator:
         return True
 
     def order_domain_values(self, var, assignment):
+        """
+        Orders the domain values of a variable based on the number of conflicts they cause with unassigned variables.
+
+        Args:
+        var (Variable): The variable whose domain values need to be ordered.
+        assignment (dict): The current assignment.
+
+        Returns:
+        list: An ordered list of domain values for the variable.
+        """
+
         def count_conflicts(value):
             count = 0
             for neighbor in self.crossword.neighbors(var):
@@ -167,6 +256,16 @@ class CrosswordCreator:
         return sorted(self.domains[var], key=count_conflicts)
 
     def select_unassigned_variable(self, assignment):
+        """
+        Selects the next variable to assign, using the Minimum Remaining Values (MRV) heuristic.
+
+        Args:
+        assignment (dict): The current assignment.
+
+        Returns:
+        Variable: The selected unassigned variable.
+        """
+
         def mrv(variable):
             return len(self.domains[variable]), -len(self.crossword.neighbors(variable))
 
@@ -174,6 +273,15 @@ class CrosswordCreator:
         return min(unassigned, key=mrv)
 
     def backtrack(self, assignment):
+        """
+        Backtrack search for solving the crossword puzzle.
+
+        Args:
+        assignment (dict): The current assignment.
+
+        Returns:
+        dict or None: The complete assignment if a solution is found, or None if there is no solution.
+        """
         if self.assignment_complete(assignment):
             return assignment
 

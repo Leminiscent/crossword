@@ -1,9 +1,32 @@
+"""
+This module defines the classes and structures necessary for representing a crossword puzzle. 
+It includes the 'Variable' class representing a potential word in the crossword and the 'Crossword' class 
+which represents the structure of the crossword and manages the variables and their possible overlaps.
+
+Usage:
+    This module is not intended to be run as a standalone script. It should be imported and used by 'generate.py'.
+"""
+
+
 class Variable:
+    """
+    Represents a variable (a potential word) in the crossword puzzle, defined by its position, direction, and length.
+    """
+
+    # Constants for word direction
     ACROSS = "across"
     DOWN = "down"
 
     def __init__(self, i, j, direction, length):
-        """Create a new variable with starting point, direction, and length."""
+        """
+        Creates a new variable with starting point, direction, and length.
+
+        Args:
+        i (int): The row index where the word starts.
+        j (int): The column index where the word starts.
+        direction (str): The direction of the word ('across' or 'down').
+        length (int): The length of the word.
+        """
         self.i = i
         self.j = j
         self.direction = direction
@@ -37,7 +60,18 @@ class Variable:
 
 
 class Crossword:
+    """
+    Represents the structure of a crossword puzzle, including the grid structure, the set of all words to use, and the variables (potential words).
+    """
+
     def __init__(self, structure_file, words_file):
+        """
+        Initializes a crossword grid structure and sets up variables based on the structure and word list files.
+
+        Args:
+        structure_file (str): File path to the crossword structure file.
+        words_file (str): File path to the file containing the list of words.
+        """
         # Determine structure of crossword
         with open(structure_file) as f:
             contents = f.read().splitlines()
@@ -118,5 +152,13 @@ class Crossword:
                     )
 
     def neighbors(self, var):
-        """Given a variable, return set of overlapping variables."""
+        """
+        Returns the set of variables that overlap with the given variable.
+
+        Args:
+        var (Variable): A variable in the crossword puzzle.
+
+        Returns:
+        set of Variable: A set of variables that overlap with 'var'.
+        """
         return set(v for v in self.variables if v != var and self.overlaps[v, var])
