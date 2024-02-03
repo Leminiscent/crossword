@@ -1,4 +1,4 @@
-# Crossword Puzzle Generator
+# Crossword
 
 This Python project provides a tool to generate crossword puzzles using constraint satisfaction programming. It includes two main components: a script to generate the crossword (`generate.py`) and a module defining the necessary classes and structures (`crossword.py`).
 
